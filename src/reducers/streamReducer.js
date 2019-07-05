@@ -29,9 +29,12 @@ export default (state = initialState, action) => {
                 [action.payload.id]: action.payload
             };
         case DELETE_STREAM:
-            const newState = Object.keys(state).filter(key => {
-                return state[key].id !== action.payload.id;
-            });
+            const newState = Object.keys(state).reduce((obj, key) => {
+                if (key !== action.payload) {
+                    obj[key] = state[key];
+                }
+                return obj;
+            }, {});
 
             return newState;
         default:
