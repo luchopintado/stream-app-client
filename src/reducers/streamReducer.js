@@ -2,7 +2,7 @@ import { FETCH_STREAM, CREATE_STREAM, EDIT_STREAM, DELETE_STREAM, FETCH_STREAMS 
 
 const initialState = {};
 
-export default (state = initialState, action) => {
+const streamReducer = (state = initialState, action) => {
     switch (action.type) {
         case FETCH_STREAMS:
             const arrayToObject = {};
@@ -41,3 +41,5 @@ export default (state = initialState, action) => {
             return state;
     }
 };
+
+export default streamReducer;
