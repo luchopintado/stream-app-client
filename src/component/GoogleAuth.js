@@ -20,7 +20,7 @@ const GoogleAuth = ({ isSignedIn, signIn, signOut }) => {
                     localStorage.removeItem('google_token');
                 });
         }
-    }, []);
+    }, [signIn]);
 
     const login = useGoogleLogin({
         onSuccess: async (tokenResponse) => {
