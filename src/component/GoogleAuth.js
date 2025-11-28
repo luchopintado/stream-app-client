@@ -1,69 +1,77 @@
-import React, { Component } from 'react';
+import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
+import { useGoogleLogin, googleLogout } from '@react-oauth/google';
+import axios from 'axios';
 import { signIn, signOut } from '../actions';
-class GoogleAuth extends Component {
-    auth = null;
 
-    componentDidMount() {
-        window.gapi.load('client:auth2', () => {
-            window.gapi.client.init({
-                clientId: process.env.REACT_APP_GOOGLE_CLIENT_ID,
-                scope: 'email'
-            }).then(() => {
-                this.auth = window.gapi.auth2.getAuthInstance();
-                this.onAuthChange(this.auth.isSignedIn.get());
-                this.auth.isSignedIn.listen(this.onAuthChange);
-            });
-        });
-    }
-
-    onAuthChange = (isSignedIn) => {
-        if (isSignedIn) {
-            const userId = this.auth.currentUser.get().getId();
-            this.props.signIn(userId);
-        } else {
-            this.props.signOut();
+const GoogleAuth = ({ isSignedIn, signIn, signOut }) => {
+    // On mount, try to restore session from stored token
+    useEffect(() => {
+        const storedToken = localStorage.getItem('google_token');
+        if (storedToken) {
+            axios
+                .get('https://www.googleapis.com/oauth2/v3/userinfo', {
+                    headers: { Authorization: `Bearer ${storedToken}` },
+                })
+                .then((resp) => {
+                    signIn(resp.data.sub);
+                })
+                .catch(() => {
+                    localStorage.removeItem('google_token');
+                });
         }
-    }
+    }, []);
 
-    onSignInClick = () => {
-        this.auth.signIn();
-    }
+    const login = useGoogleLogin({
+        onSuccess: async (tokenResponse) => {
+            const accessToken = tokenResponse.access_token;
+            localStorage.setItem('google_token', accessToken);
+            try {
+                const userInfo = await axios.get(
+                    'https://www.googleapis.com/oauth2/v3/userinfo',
+                    { headers: { Authorization: `Bearer ${accessToken}` } }
+                );
+                signIn(userInfo.data.sub);
+            } catch (error) {
+                console.error('Failed to fetch user info:', error);
+            }
+        },
+        onError: (error) => console.log('Login Failed:', error),
+    });
 
-    onSignOutClick = () => {
-        this.auth.signOut();
-    }
+    const onSignOutClick = () => {
+        googleLogout();
+        localStorage.removeItem('google_token');
+        signOut();
+    };
 
-    renderAuthButton = () => {
-        const { isSignedIn } = this.props;
-        if (isSignedIn === null) {
-            return null;
-        } else if (isSignedIn) {
+    const onSignInClick = () => {
+        login();
+    };
+
+    const renderAuthButton = () => {
+        if (isSignedIn) {
             return (
-                <button className="ui red google button" onClick={this.onSignOutClick}>
+                <button className="ui red google button" onClick={onSignOutClick}>
                     <i className="google icon" />
                     Sign Out
                 </button>
             );
-        } else {
-            return (
-                <button className="ui red google button" onClick={this.onSignInClick}>
-                    <i className="google icon" />
-                    Sign in with Google
-                </button>
-            );
         }
-    }
-
-    render() {
-        return this.renderAuthButton();
-    }
-}
-
-const mapStateToProps = (state) => {
-    return {
-        isSignedIn: state.auth.isSignedIn,
+        return (
+            <button className="ui red google button" onClick={onSignInClick}>
+                <i className="google icon" />
+                Sign in with Google
+            </button>
+        );
     };
+
+    return renderAuthButton();
 };
 
+const mapStateToProps = (state) => ({
+    isSignedIn: state.auth.isSignedIn,
+});
+
 export default connect(mapStateToProps, { signIn, signOut })(GoogleAuth);
+

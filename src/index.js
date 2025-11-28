@@ -1,5 +1,6 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import { Provider } from 'react-redux';
 import { createStore, applyMiddleware, compose } from 'redux';
 import reduxThunk from 'redux-thunk';
@@ -17,7 +18,9 @@ const container = document.querySelector('#root');
 const root = createRoot(container);
 
 root.render(
-    <Provider store={store}>
-        <App />
-    </Provider>
+    <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
+        <Provider store={store}>
+            <App />
+        </Provider>
+    </GoogleOAuthProvider>
 );
