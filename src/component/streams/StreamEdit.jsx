@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { fetchStream, editStream } from '../../actions';
-import StreamForm from './StreamForm';
+import StreamForm from './StreamForm.jsx';
 
 class StreamEdit extends Component {
     componentDidMount() {
