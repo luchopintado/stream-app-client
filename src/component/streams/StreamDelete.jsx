@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import Modal from '../Modal';
+import Modal from '../Modal.jsx';
 import history from '../../history';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';

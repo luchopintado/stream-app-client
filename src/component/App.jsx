@@ -1,11 +1,11 @@
 import React from 'react';
 import { Router, Route, Switch } from 'react-router-dom';
-import StreamCreate from './streams/StreamCreate';
-import StreamDelete from './streams/StreamDelete';
-import StreamEdit from './streams/StreamEdit';
-import StreamList from './streams/StreamList';
-import StreamShow from './streams/StreamShow';
-import Header from './Header';
+import StreamCreate from './streams/StreamCreate.jsx';
+import StreamDelete from './streams/StreamDelete.jsx';
+import StreamEdit from './streams/StreamEdit.jsx';
+import StreamList from './streams/StreamList.jsx';
+import StreamShow from './streams/StreamShow.jsx';
+import Header from './Header.jsx';
 import history from '../history';
 
 const App = () => {
